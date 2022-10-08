@@ -10,48 +10,52 @@ public class BinaryDictionary<KEY, VALUE> implements Dictionary<KEY, VALUE>, Fil
 
     @Override
     public VALUE get(KEY key) {
-        DictNode<KEY, VALUE> branch = root;
-        do {
-            if (branch.key.hashCode() == key.hashCode() && branch.key.equals(key)) {
-                return branch.value;
-            } else {
-                if (key.hashCode() >= branch.key.hashCode()) {
-                    branch = branch.right;
+        if (key != null) {
+            DictNode<KEY, VALUE> branch = root;
+            do {
+                if (branch.key.hashCode() == key.hashCode() && branch.key.equals(key)) {
+                    return branch.value;
                 } else {
-                    branch = branch.left;
+                    if (key.hashCode() >= branch.key.hashCode()) {
+                        branch = branch.right;
+                    } else {
+                        branch = branch.left;
+                    }
                 }
-            }
-        } while (branch != null);
+            } while (branch != null);
+        }
 
         return null;
     }
 
     @Override
     public void put(KEY key, VALUE value) {
-        DictNode<KEY, VALUE> newNode = new DictNode<>(key, value);
-        if (root == null) {
-            root = newNode;
-        } else {
-            DictNode<KEY, VALUE> branch = root;
+        if (key != null) {
+            DictNode<KEY, VALUE> newNode = new DictNode<>(key, value);
+            if (root == null) {
+                root = newNode;
+            } else {
+                DictNode<KEY, VALUE> branch = root;
 
-            do {
-                if (key.hashCode() == branch.key.hashCode() && branch.key.equals(key)) {
-                    System.err.println("Key-value pair<" + key + "," + value + "> can't be added, there is another value with the same key");
-                    return;
-                } else if (key.hashCode() >= branch.key.hashCode()) {
-                    if (branch.right == null) {
-                        branch.right = newNode;
+                do {
+                    if (key.hashCode() == branch.key.hashCode() && branch.key.equals(key)) {
+                        System.err.println("Key-value pair<" + key + "," + value + "> can't be added, there is another value with the same key");
                         return;
+                    } else if (key.hashCode() >= branch.key.hashCode()) {
+                        if (branch.right == null) {
+                            branch.right = newNode;
+                            return;
+                        } else {
+                            branch = branch.right;
+                        }
                     } else {
-                        branch = branch.right;
+                        if (branch.left == null) {
+                            branch.left = newNode;
+                            return;
+                        } else branch = branch.left;
                     }
-                } else {
-                    if (branch.left == null) {
-                        branch.left = newNode;
-                        return;
-                    } else branch = branch.left;
-                }
-            } while (true);
+                } while (true);
+            }
         }
 
     }
@@ -64,11 +68,7 @@ public class BinaryDictionary<KEY, VALUE> implements Dictionary<KEY, VALUE>, Fil
                 res.add(value);
             }
         }
-        if (res.size() > 0) {
-            return res;
-        } else {
-            return null;
-        }
+        return res;
     }
 
     @Override
@@ -76,7 +76,7 @@ public class BinaryDictionary<KEY, VALUE> implements Dictionary<KEY, VALUE>, Fil
         return new Iterator<>() {
 
             DictNode<KEY, VALUE> currentNode;
-            final Stack<DictNode<KEY, VALUE>>  nodes = new Stack<>();
+            final Stack<DictNode<KEY, VALUE>> nodes = new Stack<>();
 
             {
                 if (root == null) {
