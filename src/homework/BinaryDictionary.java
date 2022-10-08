@@ -1,7 +1,9 @@
 package homework;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Stack;
 
 public class BinaryDictionary<KEY, VALUE> implements Dictionary<KEY, VALUE>, Filterable<VALUE>, Iterable<VALUE> {
     DictNode<KEY, VALUE> root;
@@ -12,8 +14,7 @@ public class BinaryDictionary<KEY, VALUE> implements Dictionary<KEY, VALUE>, Fil
         do {
             if (branch.key.hashCode() == key.hashCode() && branch.key.equals(key)) {
                 return branch.value;
-            }
-            else{
+            } else {
                 if (key.hashCode() >= branch.key.hashCode()) {
                     branch = branch.right;
                 } else {
@@ -40,7 +41,6 @@ public class BinaryDictionary<KEY, VALUE> implements Dictionary<KEY, VALUE>, Fil
                 } else if (key.hashCode() >= branch.key.hashCode()) {
                     if (branch.right == null) {
                         branch.right = newNode;
-                        newNode.parent = branch;
                         return;
                     } else {
                         branch = branch.right;
@@ -48,7 +48,6 @@ public class BinaryDictionary<KEY, VALUE> implements Dictionary<KEY, VALUE>, Fil
                 } else {
                     if (branch.left == null) {
                         branch.left = newNode;
-                        newNode.parent = branch;
                         return;
                     } else branch = branch.left;
                 }
@@ -59,22 +58,69 @@ public class BinaryDictionary<KEY, VALUE> implements Dictionary<KEY, VALUE>, Fil
 
     @Override
     public List<VALUE> filter(ValueFilter<VALUE> valueValueFilter) {
-        return null;
+        List<VALUE> res = new ArrayList<>();
+        for (VALUE value : this) {
+            if (valueValueFilter.filter(value)) {
+                res.add(value);
+            }
+        }
+        if (res.size() > 0) {
+            return res;
+        } else {
+            return null;
+        }
     }
 
     @Override
     public Iterator<VALUE> iterator() {
-        return new Iterator<VALUE>() {
+        return new Iterator<>() {
+
+            DictNode<KEY, VALUE> currentNode;
+            final Stack<DictNode<KEY, VALUE>>  nodes = new Stack<>();
+
+            {
+                if (root == null) {
+                    currentNode = null;
+                } else {
+                    currentNode = root;
+                }
+
+            }
 
             @Override
             public boolean hasNext() {
-                return false;
+                return (currentNode != null);
             }
 
             @Override
             public VALUE next() {
+                if (currentNode != null) {
+                    VALUE res = currentNode.value;
+                    if (currentNode.right != null) {
+                        nodes.push(currentNode.right);
+                    }
+                    if (currentNode.left != null) {
+                        nodes.push(currentNode.left);
+                    }
+                    if (!nodes.isEmpty()) {
+                        currentNode = nodes.pop();
+                    } else {
+                        currentNode = null;
+                    }
+                    return res;
+                }
+
                 return null;
             }
         };
+    }
+
+    @Override
+    public String toString() {
+        String res = "";
+        for (VALUE value : this) {
+            res += value + "\n";
+        }
+        return res;
     }
 }

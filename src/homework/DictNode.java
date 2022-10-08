@@ -6,8 +6,6 @@ public class DictNode<K, V> {
 
     DictNode<K, V> right;
     DictNode<K, V> left;
-    DictNode<K, V> parent;
-
 
     public DictNode(K key, V value) {
         this.key = key;
